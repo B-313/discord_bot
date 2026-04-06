@@ -43,7 +43,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_ollama import ChatOllama
@@ -187,7 +187,7 @@ def tool_planner(state: AgentState) -> dict:
         A partial state update setting ``next_node``.
     """
     # Retrieve the last message for future intent-detection logic.
-    last_message = state.messages[-1] if state.messages else None
+    last_message = state.messages[-1] if len(state.messages) > 0 else None
     logger.debug(
         "ToolPlanner | last_message_type=%s",
         type(last_message).__name__ if last_message else "None",
@@ -233,14 +233,14 @@ def persona_responder(state: AgentState) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def _route_after_planner(state: AgentState) -> Literal["persona_responder"]:
+def _route_after_planner(state: AgentState) -> str:
     """Return the name of the node to visit after ToolPlanner.
 
     This thin wrapper reads ``state.next_node`` so the conditional edge stays
     declarative.  Additional return-type literals can be added here as new
     tool nodes are introduced in future phases.
     """
-    return state.next_node  # type: ignore[return-value]
+    return state.next_node
 
 
 # ---------------------------------------------------------------------------
