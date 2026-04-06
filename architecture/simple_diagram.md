@@ -7,7 +7,7 @@ flowchart TD
     subgraph Discord
         U1[User#1]
         U2[User#2]
-        B1[Discord Bot ('Husbando / WaifuAssistant')]
+        B1[Discord Bot]
     end
     U1 -- chat --> B1
     U2 -- chat --> B1
