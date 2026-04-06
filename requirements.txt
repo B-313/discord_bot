@@ -5,5 +5,8 @@ discord.py>=2.3.2
 langchain-ollama>=0.2.0
 langchain-core>=0.3.0
 
+# LangGraph agent graph + in-memory checkpointing
+langgraph>=1.1.6
+
 # Environment variable loading
 python-dotenv>=1.0.0
