@@ -5,6 +5,7 @@ Flow:
     → call Ollama via langchain-ollama → send reply.
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -145,7 +146,7 @@ async def on_message(message: discord.Message) -> None:
     # Show a "typing…" indicator while we wait for the LLM response.
     async with message.channel.typing():
         try:
-            response = await _get_llm_reply(user_text)
+            response = await _get_llm_reply(user_id, user_text)
         except Exception:
             logger.exception("LLM call failed for user_id=%s", user_id)
             await message.reply(
@@ -164,21 +165,28 @@ async def on_message(message: discord.Message) -> None:
 # ---------------------------------------------------------------------------
 
 
-async def _get_llm_reply(user_text: str) -> str:
+async def _get_llm_reply(user_id: str, user_text: str) -> str:
     """Call Ollama synchronously inside an executor to keep the event loop free.
 
     langchain-ollama's ChatOllama.invoke is synchronous; running it via
     ``loop.run_in_executor`` avoids blocking the Discord gateway.
-    """
-    import asyncio
 
+    Args:
+        user_id: Discord user ID (string). Passed here as the foundation for
+            per-user conversation history that will be added in a later module.
+        user_text: The clean message text from the user.
+    """
     loop = asyncio.get_event_loop()
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=user_text),
     ]
     ai_message = await loop.run_in_executor(None, llm.invoke, messages)
-    return ai_message.content.strip()
+    content = ai_message.content
+    if not isinstance(content, str) or not content:
+        logger.warning("Unexpected LLM response for user_id=%s: %r", user_id, content)
+        return "Hmm, I couldn't think of a reply just now. Try asking me again? 🌸"
+    return content.strip()
 
 
 # ---------------------------------------------------------------------------

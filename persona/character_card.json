@@ -1,6 +1,6 @@
 {
   "name": "Aria",
-  "age": "19",
+  "age": 19,
   "gender": "female",
   "archetype": "devoted companion",
   "speech_style": "warm, playful, slightly formal at times",
